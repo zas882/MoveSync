@@ -1,6 +1,6 @@
 // src/screens/WorkoutPlanScreen.tsx
 import React from 'react';
-import WorkoutCard from '../components/WorkoutCard';
+import WorkoutCard from '../components/WorkoutCard.tsx';
 import { WorkoutPlanScreenProps } from '../types';
 // import { initializeSpotifyPlayer, playTrack } from '../services/spotifyService'; // If using SDK
 

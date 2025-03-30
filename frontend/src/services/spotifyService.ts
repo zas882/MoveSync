@@ -1,110 +1,54 @@
+// src/services/spotifyService.ts (Frontend)
+
 import axios from 'axios';
 import queryString from 'query-string';
 
-const CLIENT_ID = '0532417c01ac438dad85bb539b148176'; // Replace with your Client ID
+const CLIENT_ID = '0532417c01ac438dad85bb539b148176';
 const REDIRECT_URI = 'http://localhost:3000';
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
-const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 
 let accessToken: string | null = null;
-let player: Spotify.Player | null = null;
+let deviceId: string | null = null;
 
-export const getAccessToken = async () => {
-  if (accessToken) {
-    return accessToken;
-  }
+// ... (generateCodeVerifier and generateCodeChallenge functions)
 
-  const hash = window.location.hash;
-  const params = queryString.parse(hash.substring(1));
-  accessToken = params.access_token as string;
-
-  if (accessToken) {
-    window.location.hash = ''; // Clear the hash
-
-    return accessToken;
-  }
-
-  const storedToken = localStorage.getItem('spotify_access_token');
-  if (storedToken) {
-    accessToken = storedToken;
-    return accessToken;
-  }
-
-  return null;
+export const authenticate = async () => {
+  // ... (authenticate function)
+  
 };
 
-export const authenticate = () => {
-    const scopes = ['streaming', 'user-read-playback-state', 'user-modify-playback-state'];
-    const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join('%20')}&response_type=token&show_dialog=true`;
-    window.location.href = authUrl;
-  };
+export const initializePlayer = async () => {
+  const hash = window.location.search;
+  const params = queryString.parse(hash);
+  const code = params.code as string;
 
-export const initializePlayer = async (callback: (playerInstance: Spotify.Player) => void) => {
-  const token = await getAccessToken();
+  if (code) {
+    const codeVerifier = localStorage.getItem('code_verifier');
+    localStorage.removeItem('code_verifier');
 
-  if (!token) {
-    return;
+    try {
+      const response = await axios.post('/api/token', { code, codeVerifier, redirectUri: REDIRECT_URI });
+      accessToken = response.data.accessToken;
+    } catch (error) {
+      console.error('Error getting token:', error);
+    }
   }
-
-  const script = document.createElement('script');
-  script.src = 'https://sdk.scdn.co/spotify-player.js';
-  script.async = true;
-
-  document.body.appendChild(script);
-}
-
-  window.onSpotifyWebPlaybackSDKReady = () => {
-    const token = '[My access token]';
-    player = new window.Spotify.Player({
-      name: 'Workout Music Player',
-      getOAuthToken: (cb) => {
-        cb(token);
-      },
-      volume: 0.5,
-    });
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-        const token = '[My access token]';
-        const player = new Spotify.Player({
-          name: 'Web Playback SDK Quick Start Player',
-          getOAuthToken: cb => { cb(token); },
-          volume: 0.5
-        });
-
-    player.connect().then((success) => {
-      if (success) {
-        callback(player);
-      }
-    });
-  };
 };
 
 export const playTrack = async (trackUri: string, deviceId: string) => {
-  const token = await getAccessToken();
-  if (!token || !player) return;
-
   try {
-    await axios.put(
-      `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
-      { uris: [trackUri] },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    await axios.post('/api/play', { trackUri, deviceId });
   } catch (error) {
     console.error('Error playing track:', error);
   }
 };
 
-export const getDeviceId = () => {
-  if (player) {
-    return player.getDeviceId();
+export const getAvailableDevices = async () => {
+  try {
+    const response = await axios.get('https://api.spotify.com/v1/me/player/devices', {headers: {Authorization: `Bearer ${accessToken}`}});
+    return response.data.devices;
+  } catch (error) {
+    console.error('Error getting devices:', error);
+    return [];
   }
-  return null;
-};
-
-export const isPlayerReady = () => {
-  return player !== null;
-};
+}

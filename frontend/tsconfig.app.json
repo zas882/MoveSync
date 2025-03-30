@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "src/Song Player/WebPlayback.jsx", "src/Song Player/Login.js", "src/Song Player/setupProxy.js"]
 }
