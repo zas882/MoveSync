@@ -24,7 +24,6 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({ item, onPlaySong }) => {
 
       {/* Option 1: In-app play button (Requires Spotify SDK setup) */}
       {/* <button onClick={handlePlayClick}>Play Song</button> */}
-
     </div>
   );
 };

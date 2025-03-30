@@ -34,12 +34,10 @@ export const getAccessToken = async () => {
 };
 
 export const authenticate = () => {
-  const scopes = ['streaming', 'user-read-playback-state', 'user-modify-playback-state'];
-  const authUrl = `<span class="math-inline">\{AUTH\_ENDPOINT\}?<1\>client\_id\=</span>{CLIENT_ID}&redirect_uri=<span class="math-inline">\{REDIRECT\_URI\}&scope\=</span>{scopes.join(
-    '%20'
-  )}&response_type=token&show_dialog=true`;
-  window.location.href = authUrl;
-};
+    const scopes = ['streaming', 'user-read-playback-state', 'user-modify-playback-state'];
+    const authUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join('%20')}&response_type=token&show_dialog=true`;
+    window.location.href = authUrl;
+  };
 
 export const initializePlayer = async (callback: (playerInstance: Spotify.Player) => void) => {
   const token = await getAccessToken();
@@ -53,8 +51,10 @@ export const initializePlayer = async (callback: (playerInstance: Spotify.Player
   script.async = true;
 
   document.body.appendChild(script);
+}
 
   window.onSpotifyWebPlaybackSDKReady = () => {
+    const token = '[My access token]';
     player = new window.Spotify.Player({
       name: 'Workout Music Player',
       getOAuthToken: (cb) => {
@@ -62,6 +62,14 @@ export const initializePlayer = async (callback: (playerInstance: Spotify.Player
       },
       volume: 0.5,
     });
+
+    window.onSpotifyWebPlaybackSDKReady = () => {
+        const token = '[My access token]';
+        const player = new Spotify.Player({
+          name: 'Web Playback SDK Quick Start Player',
+          getOAuthToken: cb => { cb(token); },
+          volume: 0.5
+        });
 
     player.connect().then((success) => {
       if (success) {
