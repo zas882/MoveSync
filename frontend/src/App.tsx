@@ -1,7 +1,7 @@
 // src/App.tsx
 import React, { useState } from 'react';
 import StartScreen from './screens/StartScreen';
-import WorkoutPlanScreen from './screens/WorkoutPlanScreen';
+import WorkoutPlanScreen from './screens/WorkoutPlanScreen.tsx';
 import { generateWorkoutPlan } from './services/geminiService.ts';
 import { UserInputs, WorkoutPlan } from './types';
 import './App.css'; // Example global styles

@@ -1,7 +1,8 @@
 // src/screens/WorkoutPlanScreen.tsx
-import React from 'react';
-import WorkoutCard from '../components/WorkoutCard.tsx';
-import { WorkoutPlanScreenProps } from '../types';
+import React, { useState, useEffect } from 'react'
+import WorkoutCard from '../components/WorkoutCard.tsx'
+import Login from '../Login.jsx'
+import { WorkoutPlanScreenProps } from '../types/index.ts'
 // import { initializeSpotifyPlayer, playTrack } from '../services/spotifyService'; // If using SDK
 
 const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ plan }) => {
@@ -18,8 +19,25 @@ const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ plan }) => {
     // Optionally add a button to go back
   }
 
+  const [token, setToken] = useState('');
+
+  useEffect(() => {
+
+    async function getToken() {
+      const response = await fetch('/auth/token');
+      const json = await response.json();
+      setToken(json.access_token);
+    }
+
+    getToken();
+
+  }, []);
+
   return (
     <div>
+      <>
+      { (token === '') ? <Login/> : <h1>Logged in</h1> }
+    </>
       <h2>Your Workout Plan</h2>
       {plan.map((item, index) => (
         <WorkoutCard

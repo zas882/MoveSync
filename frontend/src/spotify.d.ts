@@ -1,53 +1,26 @@
-// src/spotify.d.ts
-interface SpotifyPlayer {
-  _options: {
-    getOAuthToken: () => string;
-  };
-  connect: () => Promise<boolean>;
-  disconnect: () => void;
-  getCurrentState: () => Promise<Spotify.PlaybackState | null>;
-  addListener: (event: string, callback: (...args: any[]) => void) => void;
-  removeListener: (event: string, callback: (...args: any[]) => void) => void;
-  pause: () => Promise<void>;
-  resume: () => Promise<void>;
-  togglePlay: () => Promise<void>;
-  seek: (positionMs: number) => Promise<void>;
-  previousTrack: () => Promise<void>;
-  nextTrack: () => Promise<void>;
-  setVolume: (volume: number) => Promise<void>;
-  getDeviceId: () => string;
-  play: (options: { uris: string[] }) => Promise<void>;
-}
+declare namespace Spotify {
+  interface Player {
+    new (options: PlayerOptions): Player;
+    connect(): Promise<boolean>;
+    disconnect(): void;
+    addListener(event: string, callback: (data: any) => void): void;
+    removeListener(event: string, callback?: (data: any) => void): void;
+  }
 
-interface PlaybackState {
-  position: number;
-  duration: number;
-  track_window: {
-    current_track: SpotifyTrack;
-  };
-  paused: boolean;
-  shuffle: boolean;
-  repeat_mode: number;
-}
+  interface PlayerOptions {
+    name: string;
+    getOAuthToken: (callback: (token: string) => void) => void;
+  }
 
-interface SpotifyTrack {
-  uri: string;
-  id: string;
-  type: string;
-  name: string;
-  artists: { name: string }[];
-  album: { images: { url: string }[] };
-}
+  interface PlayerEventReady {
+    device_id: string;
+  }
 
-declare global {
-  interface Window {
-    onSpotifyWebPlaybackSDKReady: () => void;
-    Spotify: {
-      Player: new (options: {
-        name: string;
-        getOAuthToken: (cb: (token: string) => void) => void;
-        volume: number;
-      }) => SpotifyPlayer;
-    };
+  interface PlayerEventNotReady {
+    device_id: string;
+  }
+
+  interface PlayerError {
+    message: string;
   }
 }
